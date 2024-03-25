@@ -8,7 +8,11 @@
 		"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
 	},
 
-	"postCreateCommand": "./.devcontainer/post-create.sh"
+	"postCreateCommand": "./.devcontainer/post-create.sh",
+
+	"mounts": [
+		"source=/run/dbus/system_bus_socket,target=/run/dbus/system_bus_socket,type=bind"
+	]
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},

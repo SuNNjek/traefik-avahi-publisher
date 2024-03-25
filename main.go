@@ -1,22 +1,55 @@
 package main
 
 import (
-	"fmt"
+	"context"
 	"log"
-	"net/http"
-	"traefik-avahi-helper/traefik"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+	"traefik-avahi-helper/avahi"
 )
 
+// Listen to SIGINT (Ctrl+C) and SIGTERM (docker stop) signals
+var cancelSignals = []os.Signal{
+	syscall.SIGINT,
+	syscall.SIGTERM,
+}
+
 func main() {
-	client, err := traefik.CreateApiClient(http.DefaultClient)
+	ctx, cancel := signal.NotifyContext(context.Background(), cancelSignals...)
+	defer cancel()
+
+	ticker := time.NewTicker(5 * time.Second)
+
+	client, cleanup, err := avahi.CreateAvahiClient()
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	routers, err := client.GetHttpRouters()
+	defer cleanup()
+
+	fqdn, err := client.GetHostNameFqdn()
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	fmt.Println(routers[0])
+	for {
+		err = client.PublishCnames([]string{
+			"asdf." + fqdn,
+			"test." + fqdn,
+		})
+
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		select {
+		case <-ticker.C:
+			continue
+
+		case <-ctx.Done():
+			os.Exit(0)
+		}
+	}
 }
