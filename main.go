@@ -2,12 +2,12 @@ package main
 
 import (
 	"context"
+	"errors"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
-	"traefik-avahi-helper/avahi"
+	"traefik-avahi-helper/publisher"
 )
 
 // Listen to SIGINT (Ctrl+C) and SIGTERM (docker stop) signals
@@ -20,36 +20,16 @@ func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(), cancelSignals...)
 	defer cancel()
 
-	ticker := time.NewTicker(5 * time.Second)
-
-	client, cleanup, err := avahi.CreateAvahiClient()
+	cmd, cleanup, err := publisher.CreatePublisher()
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	defer cleanup()
 
-	fqdn, err := client.GetHostNameFqdn()
-	if err != nil {
+	if err := cmd.Run(ctx); errors.Is(err, context.Canceled) {
+		log.Println("Shutdown requested, shutting down...")
+	} else if err != nil {
 		log.Fatalln(err)
-	}
-
-	for {
-		err = client.PublishCnames([]string{
-			"asdf." + fqdn,
-			"test." + fqdn,
-		})
-
-		if err != nil {
-			log.Fatalln(err)
-		}
-
-		select {
-		case <-ticker.C:
-			continue
-
-		case <-ctx.Done():
-			os.Exit(0)
-		}
 	}
 }
