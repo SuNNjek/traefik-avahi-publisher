@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	localHostsRegex = regexp.MustCompile("Host\\(`([a-zA-Z0-9_.-]+)\\.local`\\)")
+	localHostsRegex = regexp.MustCompile("Host\\(`([a-zA-Z0-9_.-]+\\.local)`\\)")
 )
 
 type Publisher struct {
