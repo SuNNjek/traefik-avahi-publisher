@@ -4,8 +4,10 @@ import (
 	"context"
 	"regexp"
 	"slices"
+	"strings"
 	"time"
 	"traefik-avahi-helper/avahi"
+	"traefik-avahi-helper/log"
 	"traefik-avahi-helper/traefik"
 )
 
@@ -15,6 +17,7 @@ var (
 
 type Publisher struct {
 	config *PublishRoutesConfig
+	logger log.Logger
 
 	avahiClient      *avahi.AvahiClient
 	traefikApiClient *traefik.TraefikApiClient
@@ -22,11 +25,13 @@ type Publisher struct {
 
 func NewPublisher(
 	config *PublishRoutesConfig,
+	logger log.Logger,
 	avahiClient *avahi.AvahiClient,
 	traefikApiClient *traefik.TraefikApiClient,
 ) *Publisher {
 	return &Publisher{
 		config,
+		logger,
 		avahiClient,
 		traefikApiClient,
 	}
@@ -34,6 +39,12 @@ func NewPublisher(
 
 func (cmd *Publisher) Run(ctx context.Context) error {
 	ticker := time.NewTicker(10 * time.Second)
+
+	if fqdn, err := cmd.avahiClient.GetHostNameFqdn(); err == nil {
+		cmd.logger.Debug("Host FQDN: %s", fqdn)
+	} else {
+		return err
+	}
 
 	for {
 		if err := cmd.publishLocalRouters(); err != nil {
@@ -84,5 +95,6 @@ func (cmd *Publisher) publishLocalRouters() error {
 		return nil
 	}
 
+	cmd.logger.Debug("Publishing %s", strings.Join(names, ", "))
 	return cmd.avahiClient.PublishCnames(names)
 }

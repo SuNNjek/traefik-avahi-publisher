@@ -8,6 +8,7 @@ package publisher
 import (
 	"net/http"
 	"traefik-avahi-helper/avahi"
+	"traefik-avahi-helper/log"
 	"traefik-avahi-helper/traefik"
 	"traefik-avahi-helper/util"
 
@@ -18,6 +19,7 @@ func CreatePublisher() (*Publisher, func(), error) {
 	wire.Build(
 		wire.InterfaceValue(new(util.HttpClient), http.DefaultClient),
 		loadConfig,
+		log.CreateLogger,
 		avahi.CreateAvahiClient,
 		traefik.CreateApiClient,
 		NewPublisher,

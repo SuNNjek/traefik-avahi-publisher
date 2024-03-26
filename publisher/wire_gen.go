@@ -9,6 +9,7 @@ package publisher
 import (
 	"net/http"
 	"traefik-avahi-helper/avahi"
+	"traefik-avahi-helper/log"
 	"traefik-avahi-helper/traefik"
 )
 
@@ -16,6 +17,10 @@ import (
 
 func CreatePublisher() (*Publisher, func(), error) {
 	publishRoutesConfig, err := loadConfig()
+	if err != nil {
+		return nil, nil, err
+	}
+	logger, err := log.CreateLogger()
 	if err != nil {
 		return nil, nil, err
 	}
@@ -29,7 +34,7 @@ func CreatePublisher() (*Publisher, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	publisher := NewPublisher(publishRoutesConfig, avahiClient, traefikApiClient)
+	publisher := NewPublisher(publishRoutesConfig, logger, avahiClient, traefikApiClient)
 	return publisher, func() {
 		cleanup()
 	}, nil
