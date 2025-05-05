@@ -1,6 +1,7 @@
 module traefik-avahi-helper
 
 go 1.24.0
+
 require (
 	github.com/godbus/dbus/v5 v5.1.0
 	github.com/google/wire v0.6.0
@@ -11,8 +12,8 @@ require (
 
 require (
 	golang.org/x/mod v0.23.0 // indirect
-	golang.org/x/net v0.36.0 // indirect
+	golang.org/x/net v0.38.0 // indirect
 	golang.org/x/sync v0.11.0 // indirect
-	golang.org/x/sys v0.30.0 // indirect
+	golang.org/x/sys v0.31.0 // indirect
 	golang.org/x/tools v0.30.0 // indirect
 )
