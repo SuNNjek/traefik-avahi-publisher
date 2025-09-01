@@ -7,7 +7,7 @@ require (
 	github.com/google/wire v0.6.0
 	github.com/holoplot/go-avahi v1.0.1
 	github.com/kelseyhightower/envconfig v1.4.0
-	github.com/miekg/dns v1.1.67
+	github.com/miekg/dns v1.1.68
 )
 
 require (
